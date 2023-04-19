@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name=”description”
+        content="Looking for a new adventure? Check out ProjectG. Battle fierce monsters, and explore a vast world filled with wonder and mystery. With stunning graphics and addictive gameplay, ProjectG is sure to satisfy your craving for adventure. Play now and embark on a journey of a lifetime!" />
+    <title>ProjectG</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
+    <link rel="manifest" href="./favicon/site.webmanifest">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <section id="mon-selection" class="modal" v-if="showModal">
+            <h1>EDIT MONSTER</h1>
+            <hr>
+            <div class="contents">
+                <ion-icon name="arrow-back-circle-outline" @click="changeMonster(1)"></ion-icon>
+                <div class="monster-information">
+                    <div class="card-title">
+                        <p class="name"><strong>{{monster[selectedID].monster}}</strong></p>
+                        <div v-if="selectedSide == 1">
+                            <div class="level">
+                                <ion-icon name="chevron-up-circle-outline" @click="leveling(0, 1)"></ion-icon>
+                                <p>{{lvlMon1}}</p>
+                                <ion-icon name="chevron-down-circle-outline" @click="leveling(1, 1)"></ion-icon>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div class="level">
+                                <ion-icon name="chevron-up-circle-outline" @click="leveling(0, 2)"></ion-icon>
+                                <p>{{lvlMon2}}</p>
+                                <ion-icon name="chevron-down-circle-outline" @click="leveling(1, 2)"></ion-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-img">
+                        <img :src="computedMonster.card" alt="">
+                    </div>
+                    <div class="card-stats">
+                        <p>💗</p>
+                        <p>{{computedMonster.hp}}</p>
+                        <p>🗡️</p>
+                        <p>{{computedMonster.atk}}</p>
+                        <p>🛡️</p>
+                        <p>{{computedMonster.def}}</p>
+                        <p>🪄</p>
+                        <p>{{computedMonster.magic}}</p>
+                        <p>⛨</p>
+                        <p>{{computedMonster.hp}}</p>
+                        <p>⏱️</p>
+                        <p>{{computedMonster.spd}}</p>
+                    </div>
+                </div>
+                <ion-icon name="arrow-forward-circle-outline" @click="changeMonster(0)"></ion-icon>
+            </div>
+
+            <a class="btn" @click="selectMonster(selectedSide);showModal=false;">CONFIRM</a>
+        </section>
+        <header><img src="./img/logo.png" alt="project-g-logo"></header>
+
+        <div class="container">
+            <div class="left-item">
+                <div class="card">
+                    <div v-if="Object.keys(monster1).length === 0"
+                        @click="showModal=true; selectedSide = 1; leveling(0, 0)">
+                        <strong>SELECT GEMMON</strong>
+                    </div>
+                    <div v-else>
+                        <div class="card-title">
+                            <p class="name"><strong>{{monster1.monster}}</strong></p>
+                            <p class="level">{{monster1.lvl}}</p>
+                        </div>
+                        <div class="card-img"
+                            @click="showModal=true; selectedSide = 1; selectedID = monster.findIndex(e => e.monster === monster1.monster)">
+                            <img :src="monster1.card" alt="">
+                        </div>
+                        <div class="card-stats">
+                            <p>💗</p>
+                            <p>{{monster1.hp}}</p>
+                            <p>🗡️</p>
+                            <p>{{monster1.atk}}</p>
+                            <p>🛡️</p>
+                            <p>{{monster1.def}}</p>
+                            <p>🪄</p>
+                            <p>{{monster1.magic}}</p>
+                            <p>⛨</p>
+                            <p>{{monster1.hp}}</p>
+                            <p>⏱️</p>
+                            <p>{{monster1.spd}}</p>
+                        </div>
+                        <div class="hp-bar mon1">
+                            <div class="bar">
+                                <div class="hp" :style="`--width: ${monster1Width}`"></div>
+                            </div>
+                            <p>{{monster1HP}}/{{monster1.hp}}</p>
+                        </div>
+                        <div class="move-list left">
+                            <p>Move: <strong>{{moveList[monster1Move].moveName}}</strong></p>
+                            <ul class="left">
+                                <li v-for="move in monster1.moves" @click="monster1Move = move; showModal = false">
+                                    {{moveList[move].moveName}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="center-item">
+                <div v-if="Object.keys(monster1).length !== 0 && Object.keys(monster2).length !== 0">
+                    <img v-if="!isBattle" class="battle" @click="battle()"
+                        src="https://logopond.com/logos/2da03d8b63986b7e8908dfdc37a0df66.png" alt="battle">
+                    <div v-else>
+                        <img class="vs"
+                            src="https://static.vecteezy.com/system/resources/thumbnails/007/166/964/small/versus-or-vs-logo-design-template-vector.jpg"
+                            alt="vs">
+                        <p class="turn">{{turn == 0 ? monster1.monster : monster2.monster}}'s Turn</p>
+                        <p class="attack" @click="attack()">🗡️ ATTACK</p>
+                    </div>
+                </div>
+            </div>
+            <div class="right-item">
+                <div class="card">
+                    <div v-if="Object.keys(monster2).length === 0" @click="showModal=true; selectedSide = 2">
+                        <strong>SELECT GEMMON</strong>
+                    </div>
+                    <div v-else>
+                        <div class="card-title">
+                            <p class="name"><strong>{{monster2.monster}}</strong></p>
+                            <p class="level">{{monster2.lvl}}</p>
+                        </div>
+                        <div class="card-img"
+                            @click="showModal=true; selectedSide = 2; selectedID = monster.findIndex(e => e.monster === monster2.monster)">
+                            <img :src="monster2.card" alt="">
+                        </div>
+                        <div class="card-stats">
+                            <p>💗</p>
+                            <p>{{monster2.hp}}</p>
+                            <p>🗡️</p>
+                            <p>{{monster2.atk}}</p>
+                            <p>🛡️</p>
+                            <p>{{monster2.def}}</p>
+                            <p>🪄</p>
+                            <p>{{monster2.magic}}</p>
+                            <p>⛨</p>
+                            <p>{{monster2.hp}}</p>
+                            <p>⏱️</p>
+                            <p>{{monster2.spd}}</p>
+                        </div>
+                        <div class="hp-bar mon2">
+                            <div class="bar">
+                                <div class="hp" :style="`--width: ${monster2Width}`"></div>
+                            </div>
+                            <p>{{monster2HP}}/{{monster2.hp}}</p>
+                        </div>
+                        <div class="move-list right">
+                            <p>Move: <strong>{{moveList[monster2Move].moveName}}</strong></p>
+                            <ul class="right">
+                                <li v-for="move in monster2.moves" @click="monster2Move = move">
+                                    {{moveList[move].moveName}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="./js/data.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+
+</html>
